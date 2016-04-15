@@ -10,7 +10,13 @@ var ejs = require('ejs');
 //is a templating engine
 var engine = require('ejs-mate');
 //ejsMate is an extension of ejs that will help create flexible webpages a supercharger
-
+var session = require('express-session');
+//uses cookie to store session-id, session-id is an encryption signature on the users browser
+//on subsequent requests, it uses the value of the cookie to retrieve session information stored on the server
+//this server side storage can be a memory store  default or connect-redis/connect-mongo
+var cookieParser = require('cookie-parser');
+var flash = require('express-flash');
+//checks error logic
 
 var User = require('./models/user');
 
@@ -33,29 +39,35 @@ app.use(bodyParser.json());
 //our express app will now be able to parse json data format
 app.use(bodyParser.urlencoded({extended: true}));
 //urlencoded will only save users with the x-www-form-urlencoded NOT form-data
+app.use(cookieParser());
+//
+app.use(session({
+    //send an object
+    resave: true,
+    //resave forces the session to be saved back to the session stores, even if the session wasn't modified during req
+    saveUninitialized: true,
+    //forces a session that is unintialized to be saved to the memory store
+    //a session is unintialized when it is new but not modified
+    secret: "admin"
+}));
+app.use(flash());
+//flash is depending on session and cookie because you want to save a flash message on a session so it can be used 
+//on another request route
+
 app.engine('ejs', engine);
 //app.engine selects the ejs engine
 app.set('view engine', 'ejs');
 //app.set sets the engine to ejs
 
 
+var mainRoutes = require('./routes/main');
+var userRoutes = require('./routes/user');
+app.use(mainRoutes);
+//can also take multiple params
+app.use(userRoutes);
 
-app.post('/create-user', function(req, res, next){
-//next parameter is a callback
-    
-    
-    var user = new User();
 
-    user.profile.name = req.body.name;
-    //based on UserSchema constructor
-    user.password = req.body.password;
-    user.email = req.body.email;
 
-    user.save(function(err){
-        if (err) next(err);
-        res.json('successfully created a new user!');
-    })
-});
 
 
 // app.post();
