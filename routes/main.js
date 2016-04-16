@@ -3,6 +3,7 @@ var router = require('express').Router();
 //router is a subpath of a certain rout
 
 router.get('/', function(req, res){
+    console.log(req);
     res.render('main/home');
 });
 router.get('/about', function(req, res){
@@ -10,4 +11,3 @@ router.get('/about', function(req, res){
 });
 
 module.exports = router;
-//express application will install the route on itself

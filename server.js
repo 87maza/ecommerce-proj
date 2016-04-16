@@ -15,14 +15,19 @@ var session = require('express-session');
 //on subsequent requests, it uses the value of the cookie to retrieve session information stored on the server
 //this server side storage can be a memory store  default or connect-redis/connect-mongo
 var cookieParser = require('cookie-parser');
+//session is stored on the server, cookie is stored on the browser, once browser is closed, need to re-login, re identify
+//http is stateless, we need a way store user data between http requests, store this data server side
 var flash = require('express-flash');
 //checks error logic
-
+var secret = require('./config/secret');
+var MongoStore = require('connect-mongo')(session);
+//need to pass in session object to mongoStore so that it knows that the session will be passion on express-session library
+//mongostore depends on express-session library, it won't work without it
 var User = require('./models/user');
-
+//module from user.js
 var app = express();
 
-mongoose.connect('mongodb://admin:admin@ds023520.mlab.com:23520/ecom-test', function(err){
+mongoose.connect(secret.database, function(err){
     if(err) {
         console.log(err);
     } else {
@@ -40,7 +45,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 //urlencoded will only save users with the x-www-form-urlencoded NOT form-data
 app.use(cookieParser());
-//
 app.use(session({
     //send an object
     resave: true,
@@ -48,7 +52,9 @@ app.use(session({
     saveUninitialized: true,
     //forces a session that is unintialized to be saved to the memory store
     //a session is unintialized when it is new but not modified
-    secret: "admin"
+    secret: secret.secretKey,
+    store: new MongoStore({url:secret.database, autoReconnect:true})
+    //session will be saved in the mongoStore, passing in the url and autorecc
 }));
 app.use(flash());
 //flash is depending on session and cookie because you want to save a flash message on a session so it can be used 
@@ -94,10 +100,10 @@ app.use(userRoutes);
 
 
 
-app.listen(3000, function(err) {
+app.listen(secret.port, function(err) {
     //listen,post,put,delete
     //function(err) is a validation callback
     if (err) throw err;
-    console.log('Server is Running')
+    console.log('Server is Running on ' + secret.port);
 });
 
