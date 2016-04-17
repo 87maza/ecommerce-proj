@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 //bcrypt is a hash library to hash password, pw = abc123 -> hash = 123243151j3khqjkshgl2341
 var Schema = mongoose.Schema;
-
+var crypto = require('crypto');
 
 //Create the user schema attributes, characteristics, fields
 var UserSchema = new Schema({
@@ -52,6 +52,13 @@ UserSchema.methods.comparePassword = function(password) {
     return bcrypt.compareSync(password, this.password)
 };
 //UserSchema.pre is a built in mongoose methods vs. UserSchema.methods is a custom method by the developer
+
+UserSchema.methods.gravatar = function(size) {
+    if (!this.size) size = 200;
+    if (!this.email) return 'https://gravatar.com/avatar/?s' + size + '&d=retro';
+    var md5 = crypto.createHash('md5').update(this.email).digest('hex');
+    return 'https://gravatar.com/avatar/' + md5 + '?s=' + size + '&d=retro';
+};
 
 module.exports = mongoose.model('User', UserSchema);
 //exports this whole schema so that server.js can use it

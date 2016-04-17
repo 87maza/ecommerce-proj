@@ -20,7 +20,8 @@ var cookieParser = require('cookie-parser');
 var flash = require('express-flash');
 //checks error logic
 var secret = require('./config/secret');
-var MongoStore = require('connect-mongo')(session);
+var MongoStore = require('connect-mongo/es5')(session);
+var passport = require('passport');
 //need to pass in session object to mongoStore so that it knows that the session will be passion on express-session library
 //mongostore depends on express-session library, it won't work without it
 var User = require('./models/user');
@@ -60,6 +61,14 @@ app.use(flash());
 //flash is depending on session and cookie because you want to save a flash message on a session so it can be used 
 //on another request route
 
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(function(req, res, next){
+    //every route will have the user object, minimizing the retyping
+    res.locals.user = req.user;
+    //once logged in req.user is available through serialize/deserialize
+    next();
+});
 app.engine('ejs', engine);
 //app.engine selects the ejs engine
 app.set('view engine', 'ejs');

@@ -1,8 +1,9 @@
 //this file is a middleware
 var passport = require('passport');
 //passport is for the authentication
-var LocalStrategy = require('passport-local').Strategy();
+var LocalStrategy = require('passport-local').Strategy;
 //local strategy is for handrolled authentication
+var User = require('../models/user');
 
 //SERIALIZE and DESERIALIZE
 passport.serializeUser(function(user,done){

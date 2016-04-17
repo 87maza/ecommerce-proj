@@ -2,6 +2,28 @@
 
 var router = require('express').Router();
 var User = require('../models/user');
+var passport = require('passport');
+var passportConf = require('../config/passport');
+
+router.get('/login', function(req,res){
+    if(req.user) return res.redirect('/');
+    res.render('accounts/login',{message: req.flash('loginMessage')});
+});
+
+router.post('/login', passport.authenticate('local-login', {
+    successRedirect: '/profile',
+    failureRedirect: '/login',
+    failureFlash: true
+}));
+
+router.get('/profile', function(req, res){
+   User.findOne({_id: req.user._id}, function(err, user){
+       //check if user_id exists
+       if(err) return next(err);
+       res.render('accounts/profile',{user: user});
+       //render the user object
+   });
+});
 
 router.get('/signup', function(req,res,next){
     res.render('accounts/signup', {
@@ -14,6 +36,7 @@ router.post('/signup', function(req,res,next){
     user.profile.name = req.body.name;
     user.email = req.body.email;
     user.password = req.body.password;
+    user.profile.picture = user.gravatar();
 
     User.findOne({email: req.body.email}, function(err, existingUser){
         //mongoose method, find only one document in the user database
@@ -29,10 +52,39 @@ router.post('/signup', function(req,res,next){
                 if(err) return next(err);
 
                 // res.json('New user has been created') not needed anymore
-                return res.redirect('/');
+                req.logIn(user,function(err){
+                    //adding session to server, and add cookie to browser
+                    if(err) return(err);
+                    res.redirect('/profile');
+                })
             });
         }
     });
 });
 
+router.get('/logout', function(req,res,next){
+    req.logout();
+    //.logout is a passport method
+    res.redirect('/');
+});
+
+router.get('/edit-profile', function(req,res,next){
+    //getting a successfule edit page
+   res.render('accounts/edit-profile', {message: req.flash('success')});
+});
+router.post('/edit-profile', function(req,res,next){
+    User.findOne({_id: req.user._id}, function(err, user){
+        if (err) return next(err);
+        //if user doesnt exist, do this
+        if(req.body.name) user.profile.name = req.body.name;
+        //body.name, then change the user.name in a database
+        if(req.body.address) user.address = req.body.address;
+        user.save(function(err){
+            //save changes
+            if(err) return next(err);
+            req.flash('success', 'Successfully edited your profile');
+            return res.redirect('/edit-profile');
+        });
+    });
+});
 module.exports = router;
