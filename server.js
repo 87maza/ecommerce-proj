@@ -26,6 +26,8 @@ var passport = require('passport');
 //mongostore depends on express-session library, it won't work without it
 var User = require('./models/user');
 //module from user.js
+var Category = require('./models/category');
+
 var app = express();
 
 mongoose.connect(secret.database, function(err){
@@ -69,6 +71,20 @@ app.use(function(req, res, next){
     //once logged in req.user is available through serialize/deserialize
     next();
 });
+app.use(function(req, res, next){
+    //middleware will find all categories
+    Category.find({}, function(err, categories){
+        //empty query to search for everything
+        if(err) return next(err);
+        res.locals.categories = categories;
+        //stores list of categories
+        next();
+    });
+});
+
+
+
+
 app.engine('ejs', engine);
 //app.engine selects the ejs engine
 app.set('view engine', 'ejs');
@@ -77,10 +93,13 @@ app.set('view engine', 'ejs');
 
 var mainRoutes = require('./routes/main');
 var userRoutes = require('./routes/user');
+var adminRoutes = require('./routes/admin');
+
+
 app.use(mainRoutes);
 //can also take multiple params
 app.use(userRoutes);
-
+app.use(adminRoutes);
 
 
 

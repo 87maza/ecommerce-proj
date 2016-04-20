@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var Scheme = mongoose.Schema;
+var Schema = mongoose.Schema;
 var CategorySchema = new Schema({
     name: { type: String, unique: true, lowercase: true}
 });
