@@ -27,7 +27,7 @@ var passport = require('passport');
 var User = require('./models/user');
 //module from user.js
 var Category = require('./models/category');
-
+var Product = require('./models/product');
 var app = express();
 
 mongoose.connect(secret.database, function(err){
@@ -94,12 +94,15 @@ app.set('view engine', 'ejs');
 var mainRoutes = require('./routes/main');
 var userRoutes = require('./routes/user');
 var adminRoutes = require('./routes/admin');
-
+var apiRoutes = require('./api/api');
 
 app.use(mainRoutes);
 //can also take multiple params
 app.use(userRoutes);
 app.use(adminRoutes);
+app.use('/api', apiRoutes);
+//add 'api' means adding all url in this router will be a suburl of this api, no need to type api in every suburl
+
 
 
 
