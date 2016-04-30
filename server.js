@@ -46,7 +46,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 //our express app will now be able to parse json data format
 app.use(bodyParser.urlencoded({extended: true}));
-//urlencoded will only save users with the x-www-form-urlencoded NOT form-data
+//urlencoded will only save users with the x-www-form-urlencoded NOT form-data, uses qs library for easy serial,deserial
 app.use(cookieParser());
 app.use(session({
     //send an object
