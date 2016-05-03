@@ -103,34 +103,6 @@ app.use(adminRoutes);
 app.use('/api', apiRoutes);
 //add 'api' means adding all url in this router will be a suburl of this api, no need to type api in every suburl
 
-
-
-
-
-// app.post();
-//posting data you entered to the server, server validates and responds back with appropriate data
-
-// app.put();
-//updating the data, similar to post
-
-// app.delete();
-//delete certain data
-
-
-// app.get('/catname', function(req, res) {
-//     res.json("meow");
-// });
-//
-// app.get('/', function(req, res){
-//     var name = "judge";
-//     res.json("My name is " + name);
-//whenever goes to this url, .get will respond back with something
-// });
-
-
-
-
-
 app.listen(secret.port, function(err) {
     //listen,post,put,delete
     //function(err) is a validation callback
