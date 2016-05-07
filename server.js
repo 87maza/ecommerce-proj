@@ -28,6 +28,7 @@ var User = require('./models/user');
 //module from user.js
 var Category = require('./models/category');
 var Product = require('./models/product');
+var cartLength = require('./middleware/middlewares');
 var app = express();
 
 mongoose.connect(secret.database, function(err){
@@ -71,6 +72,7 @@ app.use(function(req, res, next){
     //once logged in req.user is available through serialize/deserialize
     next();
 });
+app.use(cartLength);
 app.use(function(req, res, next){
     //middleware will find all categories
     Category.find({}, function(err, categories){
